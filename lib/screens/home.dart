@@ -1,8 +1,14 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:pos_project/constants/custom_color.dart';
-import 'package:pos_project/services/api_service.dart';
+import 'package:pos_project/screens/auth/login.dart';
+import 'package:pos_project/screens/configuration.dart';
+import 'package:pos_project/screens/data_items/index.dart';
+import 'package:pos_project/screens/edit_profile.dart';
+import 'package:pos_project/screens/report/invoice/index.dart';
+import 'package:pos_project/screens/report/sales_order/index.dart';
+import 'package:pos_project/screens/report/stock_items/index.dart';
+import 'package:pos_project/screens/sales_order/index.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
@@ -16,7 +22,7 @@ class _HomeState extends State<Home> {
   String name = '';
   String username = '';
 
-  _loadUserData() async {
+  loadUserData(context) async {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     var user = jsonDecode(localStorage.getString('userData')!);
 
@@ -25,27 +31,43 @@ class _HomeState extends State<Home> {
         name = user['nama_pengguna'];
         username = user['username'];
       });
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const Login(),
+        ),
+      );
     }
   }
 
-  _logout() async {
-    var res = await ApiService().logout();
-    var body = jsonDecode(res.body);
-    if (body['status'] == 1) {
-      SharedPreferences localStorage = await SharedPreferences.getInstance();
-      localStorage.clear();
-      Navigator.pushReplacementNamed(context, '/login');
-    }
+  logout(context) async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    localStorage.remove('userData');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const Login(),
+      ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserData(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    _loadUserData();
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: CustomColor().primary,
-        title: const Text("Home"),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          "Home",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       drawer: Drawer(
         child: ListView(
@@ -74,28 +96,43 @@ class _HomeState extends State<Home> {
               leading: const Icon(Icons.home),
               title: const Text('Home'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const Home(),
+                  ),
+                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Edit Profile'),
               onTap: () {
-                Navigator.pushNamed(context, '/edit_profile');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EditProfile(),
+                  ),
+                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.build),
               title: const Text('Configuration'),
               onTap: () {
-                Navigator.pushNamed(context, '/configuration');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const Configuration(),
+                  ),
+                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.do_disturb),
               title: const Text('Logout'),
               onTap: () {
-                _logout();
+                logout(context);
               },
             ),
           ],
@@ -110,7 +147,12 @@ class _HomeState extends State<Home> {
         children: <Widget>[
           InkWell(
             onTap: () {
-              Navigator.pushNamed(context, '/data_items');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const DataItems(),
+                ),
+              );
             },
             child: Container(
               padding: const EdgeInsets.all(8),
@@ -120,7 +162,12 @@ class _HomeState extends State<Home> {
           ),
           InkWell(
             onTap: () {
-              Navigator.pushNamed(context, '/report/stock_items');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ReportStockItems(),
+                ),
+              );
             },
             child: Container(
               padding: const EdgeInsets.all(8),
@@ -130,7 +177,12 @@ class _HomeState extends State<Home> {
           ),
           InkWell(
             onTap: () {
-              Navigator.pushNamed(context, '/sales_order');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SalesOrder(),
+                ),
+              );
             },
             child: Container(
               padding: const EdgeInsets.all(8),
@@ -140,7 +192,12 @@ class _HomeState extends State<Home> {
           ),
           InkWell(
             onTap: () {
-              Navigator.pushNamed(context, '/report/sales_order');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ReportSalesOrder(),
+                ),
+              );
             },
             child: Container(
               padding: const EdgeInsets.all(8),
@@ -150,7 +207,12 @@ class _HomeState extends State<Home> {
           ),
           InkWell(
             onTap: () {
-              Navigator.pushNamed(context, '/report/invoice');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ReportInvoice(),
+                ),
+              );
             },
             child: Container(
               padding: const EdgeInsets.all(8),

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pos_project/components/custom_button.dart';
 import 'package:pos_project/constants/custom_color.dart';
+import 'package:pos_project/screens/report/stock_items/list.dart';
 import 'package:pos_project/services/api_service.dart';
 
 class ReportStockItems extends StatefulWidget {
@@ -15,41 +16,31 @@ class ReportStockItems extends StatefulWidget {
 class _ReportStockItemsState extends State<ReportStockItems> {
   String selectedCategory = "ALL";
   List<DropdownMenuItem<String>> categoryItems = [
-    const DropdownMenuItem(value: "ALL", child: Text("ALL")),
+    const DropdownMenuItem(
+        value: "ALL", child: Text("ALL", style: TextStyle(fontSize: 14))),
   ];
 
-  late List items;
-
-  _loadCategories() async {
+  loadCategories() async {
     var res = await ApiService().getCategories();
     Map<String, dynamic> body = jsonDecode(res.body);
-    List data = body['data'];
-
-    setState(() {
-      for (var value in data) {
-        categoryItems.add(DropdownMenuItem(
-            value: value['nama_kategori'],
-            child:
-                Text("(${value['kode_kategori']}) ${value['nama_kategori']}")));
-      }
-    });
-  }
-
-  _loadData() async {
-    var res = await ApiService().getItems();
-    Map<String, dynamic> body = jsonDecode(res.body);
-    List data = body['data'];
-    setState(() {
-      items = data;
-    });
+    if (body['status'] == 1) {
+      setState(() {
+        for (var value in body['data']) {
+          categoryItems.add(DropdownMenuItem(
+              value: value['nama_kategori'],
+              child: Text(
+                  "(${value['kode_kategori']}) ${value['nama_kategori']}",
+                  style: const TextStyle(fontSize: 14))));
+        }
+      });
+    }
   }
 
   @override
   void initState() {
     super.initState();
 
-    _loadCategories();
-    _loadData();
+    loadCategories();
   }
 
   @override
@@ -57,7 +48,11 @@ class _ReportStockItemsState extends State<ReportStockItems> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: CustomColor().primary,
-        title: const Text("Report Stok Items"),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          "Report Stok Items",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: Column(
         children: [
@@ -95,50 +90,18 @@ class _ReportStockItemsState extends State<ReportStockItems> {
                   items: categoryItems,
                 ),
                 const SizedBox(height: 12),
-                CustomButton(onPressed: () {}, label: 'Submit')
+                CustomButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ReportStockItemsList(category: selectedCategory),
+                        ),
+                      );
+                    },
+                    label: 'Submit')
               ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: 5,
-              itemBuilder: (context, index) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("INDOMIE"),
-                          Text("Limit Stok: 10000 pcs"),
-                          Text("Keterangan")
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            "FOOD",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text("Stok: 145 pcs"),
-                        ],
-                      )
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            color: CustomColor().warning,
-            padding: const EdgeInsets.all(12),
-            child: const Text(
-              "Total: 5 Items (ALL)",
-              style: TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
         ],

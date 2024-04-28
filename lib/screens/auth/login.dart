@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pos_project/components/custom_button.dart';
 import 'package:pos_project/components/custom_text_field.dart';
 import 'package:pos_project/constants/custom_color.dart';
+import 'package:pos_project/screens/home.dart';
 import 'package:pos_project/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,14 +21,14 @@ class _LoginState extends State<Login> {
 
   bool _isLoading = false;
 
-  _showMsg(msg) {
+  showMsg(msg) {
     final snackBar = SnackBar(
       content: Text(msg),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  void _login() async {
+  void login(context) async {
     setState(() {
       _isLoading = true;
     });
@@ -41,10 +42,16 @@ class _LoginState extends State<Login> {
     if (body['status'] == 1) {
       SharedPreferences localStorage = await SharedPreferences.getInstance();
       localStorage.setString(
-          'userData', json.encode({...body['data'], ...data}));
-      Navigator.pushReplacementNamed(context, '/');
+          'userData', jsonEncode({...body['data'], ...data}));
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const Home(),
+        ),
+      );
     } else {
-      _showMsg(body['message']);
+      showMsg(body['message']);
     }
 
     setState(() {
@@ -67,20 +74,21 @@ class _LoginState extends State<Login> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Column(
+              Column(
                 children: [
-                  FlutterLogo(
-                    size: 100,
+                  Image.asset(
+                    'assets/logo.png',
+                    width: 100,
                   ),
-                  Text(
+                  const Text(
                     "POS (Point of Sales)",
                     style: TextStyle(fontSize: 24),
                   ),
-                  Text(
+                  const Text(
                     "Apps Mobile View",
                     style: TextStyle(fontSize: 20),
                   ),
-                  Text("Versi 1.0.0"),
+                  const Text("Versi 1.0.0"),
                 ],
               ),
               const Divider(),
@@ -97,7 +105,7 @@ class _LoginState extends State<Login> {
               const SizedBox(height: 12),
               CustomButton(
                 onPressed: () {
-                  _login();
+                  login(context);
                 },
                 label: _isLoading ? 'Proccessing..' : 'Login',
                 enabled: !_isLoading,

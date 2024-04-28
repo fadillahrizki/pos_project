@@ -30,9 +30,28 @@ class CustomButton extends StatelessWidget {
         child: Center(
           child: Text(
             label,
-            style: TextStyle(
-              fontSize: size == 'normal' ? 14 : 10,
+            style: const TextStyle(
+              fontSize: 14,
               color: Colors.black,
+            ),
+          ),
+        ),
+      );
+    } else if (type == 'info') {
+      return ElevatedButton(
+        onPressed: enabled ? onPressed : null,
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.symmetric(vertical: size == 'normal' ? 14 : 10),
+          backgroundColor:
+              enabled ? CustomColor().primary : CustomColor().secondary,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.white,
             ),
           ),
         ),
@@ -48,9 +67,9 @@ class CustomButton extends StatelessWidget {
         child: Center(
           child: Text(
             label,
-            style: TextStyle(
-              fontSize: size == 'normal' ? 14 : 10,
-              color: Colors.black,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.white,
             ),
           ),
         ),
@@ -69,8 +88,8 @@ class CustomButton extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              color: CustomColor().warning,
-              fontSize: size == 'normal' ? 14 : 10,
+              color: CustomColor().primary,
+              fontSize: 14,
             ),
           ),
         ),

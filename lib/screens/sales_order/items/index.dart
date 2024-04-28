@@ -1,114 +1,167 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pos_project/components/custom_button.dart';
 import 'package:pos_project/constants/custom_color.dart';
+import 'package:pos_project/screens/sales_order/items/form.dart';
+import 'package:pos_project/services/api_service.dart';
 
 class SalesOrderItems extends StatefulWidget {
-  const SalesOrderItems({super.key});
+  const SalesOrderItems({super.key, required this.data});
+
+  final Map data;
 
   @override
   State<SalesOrderItems> createState() => _SalesOrderItemsState();
 }
 
 class _SalesOrderItemsState extends State<SalesOrderItems> {
+  List items = [];
+
+  bool isLoading = true;
+
+  loadData() async {
+    var res =
+        await ApiService().getReportSalesOrderDetail(widget.data['no_order']);
+    Map<String, dynamic> body = jsonDecode(res.body);
+
+    if (body['status'] == 1) {
+      setState(() {
+        items = body['data'] ?? [];
+      });
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: CustomColor().primary,
-        title: const Text("Items Sales Order"),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          "Items Sales Order",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: Column(
         children: [
           Container(
             color: CustomColor().warning,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("SO-123456"),
-                    Text("EDY GUNAWAN"),
-                    Text("No Telepon Customer"),
+                    Text(widget.data['no_order']),
+                    Text(widget.data['nama_customer']),
+                    Text(widget.data['telepon']),
                   ],
                 ),
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text("16 APr 2024"),
-                    Text("Nama Sales"),
+                    Text(DateFormat('dd MMMM yyyy')
+                        .format(DateTime.parse(widget.data['tgl_order']))),
+                    Text(widget.data['nama_sales']),
                   ],
                 ),
               ],
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: 5,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("SO-123455"),
-                          Text(
-                            "Total Order: Rp.35.500,-",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text("Qty Order : 12")
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Row(
-                            children: [
-                              CustomButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                      context, '/sales_order/items');
-                                },
-                                label: 'Edit',
-                                size: 'sm',
-                              ),
-                              const SizedBox(width: 6),
-                              CustomButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                      context, '/sales_order/items');
-                                },
-                                label: 'Delete',
-                                type: 'danger',
-                                size: 'sm',
-                              ),
-                            ],
-                          ),
-                          const Text("Nominal Diskon ?"),
-                        ],
-                      )
-                    ],
+            child: isLoading
+                ? Center(
+                    child:
+                        CircularProgressIndicator(color: CustomColor().primary))
+                : ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      var item = items[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 6),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(item['nama_item']),
+                                Text(
+                                  "Total Order: Rp.${NumberFormat.decimalPattern().format(item['jumlah'])}",
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                    "Qty Order : ${item['qty_order']} ${item['satuan']}")
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Row(
+                                  children: [
+                                    CustomButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  SalesOrderItemsForm(
+                                                data: widget.data,
+                                                item: item,
+                                              ),
+                                            ));
+                                      },
+                                      label: 'Edit',
+                                      size: 'sm',
+                                    ),
+                                    const SizedBox(width: 6),
+                                    CustomButton(
+                                      onPressed: () {},
+                                      label: 'Delete',
+                                      type: 'danger',
+                                      size: 'sm',
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                    "Rp.${NumberFormat.decimalPattern().format(item['nominal_diskon'])}"),
+                              ],
+                            )
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
           Container(
             width: double.infinity,
             color: CustomColor().warning,
             padding: const EdgeInsets.all(12),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Total Items: 5"),
                 Text(
-                  "Total Order: 200.000",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  "Total Item: ${widget.data['total_items']}",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  "Total Order: Rp.${NumberFormat.decimalPattern().format(widget.data['total_order'])}",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -120,9 +173,16 @@ class _SalesOrderItemsState extends State<SalesOrderItems> {
         child: FloatingActionButton(
           backgroundColor: CustomColor().primary,
           onPressed: () {
-            Navigator.pushNamed(context, '/sales_order/items/form');
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SalesOrderItemsForm(data: widget.data),
+                ));
           },
-          child: const Icon(Icons.add),
+          child: const Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
         ),
       ),
     );

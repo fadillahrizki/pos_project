@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pos_project/components/custom_button.dart';
 import 'package:pos_project/constants/custom_color.dart';
+import 'package:pos_project/screens/data_items/list.dart';
 import 'package:pos_project/services/api_service.dart';
 
 class DataItems extends StatefulWidget {
@@ -13,44 +14,35 @@ class DataItems extends StatefulWidget {
 }
 
 class _DataItemsState extends State<DataItems> {
-  String selectedValue = "ALL";
+  String selectedCategory = "ALL";
 
-  List<DropdownMenuItem<String>> dropdownItems = [
-    const DropdownMenuItem(value: "ALL", child: Text("ALL"))
+  List<DropdownMenuItem<String>> categoryItems = [
+    const DropdownMenuItem(
+        value: "ALL", child: Text("ALL", style: TextStyle(fontSize: 14)))
   ];
 
-  late List items;
-
-  _loadCategories() async {
+  loadCategories() async {
     var res = await ApiService().getCategories();
     Map<String, dynamic> body = jsonDecode(res.body);
-    List data = body['data'];
 
-    setState(() {
-      for (var value in data) {
-        dropdownItems.add(DropdownMenuItem(
-            value: value['nama_kategori'],
-            child:
-                Text("(${value['kode_kategori']}) ${value['nama_kategori']}")));
-      }
-    });
-  }
-
-  _loadData() async {
-    var res = await ApiService().getItems();
-    Map<String, dynamic> body = jsonDecode(res.body);
-    List data = body['data'];
-    setState(() {
-      items = data;
-    });
+    if (body['status'] == 1) {
+      setState(() {
+        for (var value in body['data']) {
+          categoryItems.add(DropdownMenuItem(
+              value: value['nama_kategori'],
+              child: Text(
+                  "(${value['kode_kategori']}) ${value['nama_kategori']}",
+                  style: const TextStyle(fontSize: 14))));
+        }
+      });
+    }
   }
 
   @override
   void initState() {
     super.initState();
 
-    _loadCategories();
-    _loadData();
+    loadCategories();
   }
 
   @override
@@ -58,7 +50,11 @@ class _DataItemsState extends State<DataItems> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: CustomColor().primary,
-        title: const Text("Data Items"),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          "Data Items",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: Column(
         children: [
@@ -87,70 +83,27 @@ class _DataItemsState extends State<DataItems> {
                           BorderSide(color: CustomColor().primary, width: 2),
                     ),
                   ),
-                  value: selectedValue,
+                  value: selectedCategory,
                   onChanged: (String? newValue) {
                     setState(() {
-                      selectedValue = newValue!;
+                      selectedCategory = newValue!;
                     });
                   },
-                  items: dropdownItems,
+                  items: categoryItems,
                 ),
                 const SizedBox(height: 12),
-                CustomButton(onPressed: () {}, label: 'Submit')
+                CustomButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              DataItemsList(category: selectedCategory),
+                        ),
+                      );
+                    },
+                    label: 'Submit')
               ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: 5,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("INDOMIE"),
-                          Text(
-                            "Rp.2.500",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text("FOOD")
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          const Text(
-                            "Stocks: 140 pcs",
-                            style: TextStyle(fontSize: 12),
-                          ),
-                          CustomButton(
-                            onPressed: () {
-                              Navigator.pushNamed(
-                                  context, '/data_items/detail');
-                            },
-                            label: 'Detail',
-                            size: 'sm',
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            color: CustomColor().warning,
-            padding: const EdgeInsets.all(12),
-            child: const Text(
-              "Total: 5 Records (ALL)",
-              style: TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
         ],

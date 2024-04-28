@@ -9,7 +9,11 @@ class ReportInvoiceDetail extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: CustomColor().primary,
-        title: const Text("Report Invoice (Detail)"),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          "Report Invoice (Detail)",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: const SingleChildScrollView(
         child: Padding(

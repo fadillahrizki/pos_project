@@ -1,19 +1,60 @@
-import 'package:flutter/material.dart';
-import 'package:pos_project/constants/custom_color.dart';
+import 'dart:convert';
 
-class ReportSalesOrderDetail extends StatelessWidget {
-  const ReportSalesOrderDetail({super.key});
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:pos_project/constants/custom_color.dart';
+import 'package:pos_project/services/api_service.dart';
+
+class ReportSalesOrderDetail extends StatefulWidget {
+  const ReportSalesOrderDetail({super.key, required this.data});
+
+  final Map data;
+
+  @override
+  State<ReportSalesOrderDetail> createState() => _ReportSalesOrderDetailState();
+}
+
+class _ReportSalesOrderDetailState extends State<ReportSalesOrderDetail> {
+  List items = [];
+
+  bool isLoading = true;
+
+  loadData() async {
+    var res =
+        await ApiService().getReportSalesOrderDetail(widget.data['no_order']);
+    Map<String, dynamic> body = jsonDecode(res.body);
+
+    if (body['status'] == 1) {
+      setState(() {
+        items = body['data'] ?? [];
+      });
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: CustomColor().primary,
-        title: const Text("Report Sales Order (Detail)"),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          "Report Sales Order (Detail)",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
-      body: const SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -23,50 +64,56 @@ class ReportSalesOrderDetail extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("SO-123456"),
-                      Text("EDY GUNAWAN"),
-                      Text("No Telepon Customer"),
+                      Text(widget.data['no_order']),
+                      Text(widget.data['nama_customer']),
+                      Text(widget.data['telepon']),
                     ],
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text("01 Apr 2024"),
-                      Text("Nama Sales"),
+                      Text(DateFormat('dd MMMM yyyy')
+                          .format(DateTime.parse(widget.data['tgl_order']))),
+                      Text(widget.data['nama_sales']),
                     ],
                   )
                 ],
               ),
-              Divider(),
-              Text("INDOMIE KALDU @2.500"),
-              Text("Barcode + Kode Items"),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("50 pcs"),
-                  Text("Nominal Diskon?"),
-                  Text("125.000,-"),
-                ],
+              const Divider(),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: items.length,
+                itemBuilder: (_, index) {
+                  var item = items[index];
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                          "${item['nama_item']} @${NumberFormat.decimalPattern().format(item['harga_satuan'])}"),
+                      Text("${item['barcode_number']}${item['kode_item']}"),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("${item['qty_order']} ${item['satuan']}"),
+                          Text(
+                              "Rp.${NumberFormat.decimalPattern().format(item['nominal_diskon'])}"),
+                          Text(
+                              "Rp.${NumberFormat.decimalPattern().format(item['jumlah'])}"),
+                        ],
+                      ),
+                    ],
+                  );
+                },
               ),
-              SizedBox(height: 12),
-              Text("AQUA BOTOL @2.000"),
-              Text("Barcode + Kode Items"),
+              const Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("100 pcs"),
-                  Text("Nominal Diskon?"),
-                  Text("200.000,-"),
-                ],
-              ),
-              Divider(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Total Items: 2"),
+                  Text("Total Items: ${items.length}"),
                   Text(
-                    "Total Order: 325.000,-",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    "Total Order: Rp.${NumberFormat.decimalPattern().format(widget.data['total_order'])}",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   )
                 ],
               ),

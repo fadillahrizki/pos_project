@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:pos_project/components/custom_button.dart';
 import 'package:pos_project/components/custom_text_field.dart';
 import 'package:pos_project/constants/custom_color.dart';
-import 'package:pos_project/services/api_service.dart';
+import 'package:pos_project/screens/auth/login.dart';
+import 'package:pos_project/screens/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Configuration extends StatefulWidget {
   const Configuration({super.key});
@@ -17,7 +19,7 @@ class _ConfigurationState extends State<Configuration> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    loadData();
   }
 
   TextEditingController ipController = TextEditingController();
@@ -25,27 +27,27 @@ class _ConfigurationState extends State<Configuration> {
   TextEditingController serverController = TextEditingController();
   TextEditingController endpointController = TextEditingController();
 
-  _loadData() async {
-    var res = await ApiService().getConfiguration();
-    Map<String, dynamic> body = jsonDecode(res.body);
-    Map<String, dynamic> data = body['data'][0];
-
-    setState(() {
-      ipController.text = data['alamat_ippublic'];
-      databaseController.text = data['nama_database'];
-      serverController.text = data['lokasi_server'];
-      endpointController.text = data['alamat_endpoint'];
-    });
+  loadData() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    if (localStorage.getString('configuration') != null) {
+      var configuration = jsonDecode(localStorage.getString('configuration')!);
+      ipController.text = configuration['alamat_ippublic'];
+      databaseController.text = configuration['nama_database'];
+      serverController.text = configuration['lokasi_server'];
+      endpointController.text = configuration['alamat_endpoint'];
+    }
   }
 
-  _showMsg(msg) {
+  showMsg(msg) {
     final snackBar = SnackBar(
       content: Text(msg),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  _editConfiguration() async {
+  editConfiguration(context) async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+
     Map<String, dynamic> data = {
       "alamat_ippublic": ipController.text,
       "nama_database": databaseController.text,
@@ -53,22 +55,30 @@ class _ConfigurationState extends State<Configuration> {
       "alamat_endpoint": endpointController.text
     };
 
-    var res = await ApiService().editConfiguration(json.encode(data));
+    localStorage.setString('configuration', jsonEncode(data));
 
-    Map<String, dynamic> body = jsonDecode(res.body);
+    showMsg('Configuration saved!');
 
-    if (body['status'] == 1) {}
-
-    _showMsg(body['message']);
+    if (localStorage.getString("userData") != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const Home(),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const Login(),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: CustomColor().primary,
-        title: const Text("Configuration"),
-      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -82,11 +92,15 @@ class _ConfigurationState extends State<Configuration> {
                     "Configuration",
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
+                      color: Colors.white,
                       fontSize: 20,
                     ),
                   ),
                   Text(
                     "Isikan data setting awal yaitu IP Public, Server, Database dan Alamat End Point",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
                   )
                 ],
               ),
@@ -118,7 +132,7 @@ class _ConfigurationState extends State<Configuration> {
                   const SizedBox(height: 12),
                   CustomButton(
                     onPressed: () {
-                      _editConfiguration();
+                      editConfiguration(context);
                     },
                     label: "Submit",
                   )

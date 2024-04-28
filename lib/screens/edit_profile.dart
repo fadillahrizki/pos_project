@@ -39,7 +39,7 @@ class _EditProfileState extends State<EditProfile> {
     });
   }
 
-  _showMsg(msg) {
+  showMsg(msg) {
     final snackBar = SnackBar(
       content: Text(msg),
     );
@@ -53,7 +53,7 @@ class _EditProfileState extends State<EditProfile> {
       "nohp": phoneController.text
     };
 
-    var res = await ApiService().editProfile(json.encode({
+    var res = await ApiService().editProfile(jsonEncode({
       ...data,
       "password_lama": user['password'],
       "password_baru": passwordController.text,
@@ -64,10 +64,10 @@ class _EditProfileState extends State<EditProfile> {
     if (body['status'] == 1) {
       SharedPreferences localStorage = await SharedPreferences.getInstance();
       localStorage.setString('userData',
-          json.encode({...data, 'password': passwordController.text}));
+          jsonEncode({...data, 'password': passwordController.text}));
     }
 
-    _showMsg(body['message']);
+    showMsg(body['message']);
   }
 
   @override
@@ -75,7 +75,11 @@ class _EditProfileState extends State<EditProfile> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: CustomColor().primary,
-        title: const Text("Edit Profile"),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          "Edit Profile",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(

@@ -1,46 +1,120 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_project/components/custom_button.dart';
 import 'package:pos_project/components/custom_text_field.dart';
 import 'package:pos_project/constants/custom_color.dart';
+import 'package:pos_project/services/api_service.dart';
 
 class SalesOrderForm extends StatefulWidget {
-  const SalesOrderForm({super.key});
+  const SalesOrderForm({super.key, this.data = const {}});
+
+  final Map data;
 
   @override
   State<SalesOrderForm> createState() => _SalesOrderFormState();
 }
 
 class _SalesOrderFormState extends State<SalesOrderForm> {
-  String selectedCustomer = "EDY";
-  List<DropdownMenuItem<String>> get customerItems {
-    List<DropdownMenuItem<String>> menuItems = [
-      const DropdownMenuItem(value: "EDY", child: Text("EDY")),
-      const DropdownMenuItem(value: "HAMZAH", child: Text("HAMZAH")),
-      const DropdownMenuItem(value: "RIZKY", child: Text("RIZKY")),
-    ];
-    return menuItems;
+  String selectedCustomer = "ALL";
+  List<DropdownMenuItem<String>> customerItems = [
+    const DropdownMenuItem(
+        value: "ALL",
+        child: Text("SELECT CUSTOMER", style: TextStyle(fontSize: 14))),
+  ];
+
+  String selectedSales = "ALL";
+  List<DropdownMenuItem<String>> salesItems = [
+    const DropdownMenuItem(
+        value: "ALL",
+        child: Text("SELECT SALES", style: TextStyle(fontSize: 14))),
+  ];
+
+  String? selectedDate;
+  DateTime? selectedDatePicker;
+
+  TextEditingController nomorSoController =
+      TextEditingController(text: 'Empty');
+  TextEditingController keteranganController = TextEditingController();
+
+  loadCustomers() async {
+    var res = await ApiService().getCustomers();
+    Map<String, dynamic> body = jsonDecode(res.body);
+
+    if (body['status'] == 1) {
+      setState(() {
+        for (var value in body['data']) {
+          customerItems.add(DropdownMenuItem(
+              value: value['nama_customer'],
+              child: Text(value['nama_customer'],
+                  style: const TextStyle(fontSize: 14))));
+        }
+      });
+    }
   }
 
-  String selectedSales = "EDY";
-  List<DropdownMenuItem<String>> get salesItems {
-    List<DropdownMenuItem<String>> menuItems = [
-      const DropdownMenuItem(value: "EDY", child: Text("EDY")),
-      const DropdownMenuItem(value: "HAMZAH", child: Text("HAMZAH")),
-      const DropdownMenuItem(value: "RIZKY", child: Text("RIZKY")),
-    ];
-    return menuItems;
+  loadSales() async {
+    var res = await ApiService().getKaryawan();
+    Map<String, dynamic> body = jsonDecode(res.body);
+
+    if (body['status'] == 1) {
+      setState(() {
+        for (var value in body['data']) {
+          salesItems.add(DropdownMenuItem(
+              value: value['nama_sales'],
+              child: Text(value['nama_sales'],
+                  style: const TextStyle(fontSize: 14))));
+        }
+      });
+    }
   }
 
-  String? _selectedDate;
-  DateTime? _selectedDatePicker;
+  changeCustomer(String? value) {
+    setState(() {
+      selectedCustomer = value!;
+    });
+  }
+
+  changeSales(String? value) {
+    setState(() {
+      selectedSales = value!;
+    });
+  }
+
+  loadAll() async {
+    await loadCustomers();
+    await loadSales();
+
+    if (widget.data != const {}) {
+      changeCustomer(widget.data['nama_customer']);
+      changeSales(widget.data['nama_sales']);
+
+      nomorSoController.text = widget.data['no_order'];
+      keteranganController.text = widget.data['keterangan'];
+
+      setState(() {
+        selectedDate = widget.data['tgl_order'];
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadAll();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: CustomColor().primary,
-        title: const Text("Add/Edit Sales Order"),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text(
+          "Add/Edit Sales Order",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -48,7 +122,11 @@ class _SalesOrderFormState extends State<SalesOrderForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomTextField(label: "No SO"),
+              CustomTextField(
+                label: "Nomor SO",
+                enabled: false,
+                controller: nomorSoController,
+              ),
               const SizedBox(height: 12),
               const Text("Customer"),
               const SizedBox(height: 12),
@@ -71,11 +149,7 @@ class _SalesOrderFormState extends State<SalesOrderForm> {
                   ),
                 ),
                 value: selectedCustomer,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedCustomer = newValue!;
-                  });
-                },
+                onChanged: changeCustomer,
                 items: customerItems,
               ),
               const SizedBox(height: 12),
@@ -84,21 +158,21 @@ class _SalesOrderFormState extends State<SalesOrderForm> {
               CustomButton(
                 type: 'secondary',
                 onPressed: () async {
-                  _selectedDatePicker = await showDatePicker(
+                  selectedDatePicker = await showDatePicker(
                     context: context,
-                    initialDate: _selectedDatePicker,
+                    initialDate: selectedDatePicker,
                     firstDate: DateTime(DateTime.now().year),
                     lastDate: DateTime(DateTime.now().year + 1),
                   );
 
-                  if (_selectedDatePicker != null) {
+                  if (selectedDatePicker != null) {
                     setState(() {
-                      _selectedDate = DateFormat('dd MMMM yyyy')
-                          .format(_selectedDatePicker!);
+                      selectedDate = DateFormat('dd MMMM yyyy')
+                          .format(selectedDatePicker!);
                     });
                   }
                 },
-                label: _selectedDate ?? 'Pilih tanggal',
+                label: selectedDate ?? 'Pilih tanggal',
               ),
               const SizedBox(height: 12),
               const Text("Sales"),
@@ -122,11 +196,7 @@ class _SalesOrderFormState extends State<SalesOrderForm> {
                   ),
                 ),
                 value: selectedSales,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedSales = newValue!;
-                  });
-                },
+                onChanged: changeSales,
                 items: salesItems,
               ),
               const SizedBox(height: 12),
@@ -135,7 +205,20 @@ class _SalesOrderFormState extends State<SalesOrderForm> {
                 maxLines: 3,
               ),
               const SizedBox(height: 12),
-              CustomButton(onPressed: () {}, label: "Submit")
+              CustomButton(
+                  onPressed: () {
+                    if (selectedDatePicker == null) {
+                      showDialog(
+                          context: context,
+                          builder: (_) {
+                            return const AlertDialog(
+                              content: Text(
+                                  "Silahkan pilih tanggal terlebih dahulu"),
+                            );
+                          });
+                    }
+                  },
+                  label: "Submit")
             ],
           ),
         ),

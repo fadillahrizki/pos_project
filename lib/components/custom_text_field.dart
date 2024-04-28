@@ -8,6 +8,7 @@ class CustomTextField extends StatefulWidget {
     super.key,
     this.obsecureText = false,
     this.maxLines = 1,
+    this.enabled = true,
     required this.label,
     this.controller,
   });
@@ -15,6 +16,7 @@ class CustomTextField extends StatefulWidget {
   final String label;
   final int maxLines;
   bool obsecureText;
+  bool enabled;
   final TextEditingController? controller;
 
   @override
@@ -40,6 +42,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         TextField(
           controller: widget.controller ?? TextEditingController(),
           maxLines: widget.maxLines,
+          enabled: widget.enabled,
           obscureText: widget.obsecureText,
           cursorColor: CustomColor().primary,
           decoration: InputDecoration(
