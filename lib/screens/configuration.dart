@@ -22,19 +22,13 @@ class _ConfigurationState extends State<Configuration> {
     loadData();
   }
 
-  TextEditingController ipController = TextEditingController();
-  TextEditingController databaseController = TextEditingController();
-  TextEditingController serverController = TextEditingController();
   TextEditingController endpointController = TextEditingController();
 
   loadData() async {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
-    if (localStorage.getString('configuration') != null) {
-      var configuration = jsonDecode(localStorage.getString('configuration')!);
-      ipController.text = configuration['alamat_ippublic'];
-      databaseController.text = configuration['nama_database'];
-      serverController.text = configuration['lokasi_server'];
-      endpointController.text = configuration['alamat_endpoint'];
+    if (localStorage.getString('endpoint') != null) {
+      var endpoint = localStorage.getString('endpoint')!;
+      endpointController.text = endpoint;
     }
   }
 
@@ -48,14 +42,7 @@ class _ConfigurationState extends State<Configuration> {
   editConfiguration(context) async {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
 
-    Map<String, dynamic> data = {
-      "alamat_ippublic": ipController.text,
-      "nama_database": databaseController.text,
-      "lokasi_server": serverController.text,
-      "alamat_endpoint": endpointController.text
-    };
-
-    localStorage.setString('configuration', jsonEncode(data));
+    localStorage.setString('endpoint', endpointController.text);
 
     showMsg('Configuration saved!');
 
@@ -85,6 +72,7 @@ class _ConfigurationState extends State<Configuration> {
             Container(
               color: CustomColor().primary,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+              width: double.infinity,
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -97,7 +85,7 @@ class _ConfigurationState extends State<Configuration> {
                     ),
                   ),
                   Text(
-                    "Isikan data setting awal yaitu IP Public, Server, Database dan Alamat End Point",
+                    "Isikan data setting awal yaitu Alamat End Point",
                     style: TextStyle(
                       color: Colors.white,
                     ),
@@ -110,21 +98,6 @@ class _ConfigurationState extends State<Configuration> {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  CustomTextField(
-                    label: "IP Public",
-                    controller: ipController,
-                  ),
-                  const SizedBox(height: 12),
-                  CustomTextField(
-                    label: "Database",
-                    controller: databaseController,
-                  ),
-                  const SizedBox(height: 12),
-                  CustomTextField(
-                    label: "Server",
-                    controller: serverController,
-                  ),
-                  const SizedBox(height: 12),
                   CustomTextField(
                     label: "Alamat End Point",
                     controller: endpointController,

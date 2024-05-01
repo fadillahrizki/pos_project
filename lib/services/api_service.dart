@@ -6,20 +6,28 @@ class ApiService {
   final String url = "https://pos-eric.newbiehost.xyz/mobile";
 
   late Map<String, dynamic> user;
+  late String endpoint;
 
   getUser() async {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     user = jsonDecode(localStorage.getString('userData')!);
   }
 
+  getEndpoint() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    endpoint = localStorage.getString('endpoint')!;
+  }
+
   login(data) async {
-    var fullUrl = '$url/auth/login';
+    await getEndpoint();
+    var fullUrl = '$endpoint/auth/login';
     return await http.post(Uri.parse(fullUrl), body: data);
   }
 
   logout() async {
+    await getEndpoint();
     await getUser();
-    var fullUrl = '$url/auth/logout';
+    var fullUrl = '$endpoint/auth/logout';
     return await http.post(Uri.parse(fullUrl), body: {
       'username': user['username'],
       'password': user['password'],
@@ -27,8 +35,9 @@ class ApiService {
   }
 
   getProfile() async {
+    await getEndpoint();
     await getUser();
-    var fullUrl = "$url/profile/list?username=${user['username']}";
+    var fullUrl = "$endpoint/profile/list?username=${user['username']}";
     return await http.get(
       Uri.parse(fullUrl),
       headers: setHeaders(),
@@ -36,8 +45,9 @@ class ApiService {
   }
 
   editProfile(data) async {
+    await getEndpoint();
     await getUser();
-    var fullUrl = '$url/profile/edit';
+    var fullUrl = '$endpoint/profile/edit';
     return await http.post(
       Uri.parse(fullUrl),
       body: data,
@@ -46,8 +56,9 @@ class ApiService {
   }
 
   getConfiguration() async {
+    await getEndpoint();
     await getUser();
-    var fullUrl = "$url/configurasi/list";
+    var fullUrl = "$endpoint/configurasi/list";
     return await http.get(
       Uri.parse(fullUrl),
       headers: setHeaders(),
@@ -55,9 +66,10 @@ class ApiService {
   }
 
   getCategories({name = '', limit = 1, offset = 10}) async {
+    await getEndpoint();
     await getUser();
     var fullUrl =
-        "$url/kategori/list?nama_kategori=$name&limit=$limit&offset=$offset";
+        "$endpoint/kategori/list?nama_kategori=$name&limit=$limit&offset=$offset";
     return await http.get(
       Uri.parse(fullUrl),
       headers: setHeaders(),
@@ -71,9 +83,10 @@ class ApiService {
     offset = 10,
     idCustomer = 1,
   }) async {
+    await getEndpoint();
     await getUser();
     var fullUrl =
-        "$url/items/list?nama_barang=$name&nama_kategori=$category&limit=$limit&offset=$offset&id_customer=$idCustomer";
+        "$endpoint/items/list?nama_barang=$name&nama_kategori=$category&limit=$limit&offset=$offset&id_customer=$idCustomer";
     return await http.get(
       Uri.parse(fullUrl),
       headers: setHeaders(),
@@ -81,9 +94,10 @@ class ApiService {
   }
 
   getCustomers({name = '', limit = 1, offset = 10}) async {
+    await getEndpoint();
     await getUser();
     var fullUrl =
-        "$url/customer/list?nama_customer=$name&limit=$limit&offset=$offset";
+        "$endpoint/customer/list?nama_customer=$name&limit=$limit&offset=$offset";
     return await http.get(
       Uri.parse(fullUrl),
       headers: setHeaders(),
@@ -91,9 +105,10 @@ class ApiService {
   }
 
   getKaryawan({name = '', limit = 1, offset = 10}) async {
+    await getEndpoint();
     await getUser();
     var fullUrl =
-        "$url/karyawan/list?nama_karyawan=$name&limit=$limit&offset=$offset";
+        "$endpoint/karyawan/list?nama_karyawan=$name&limit=$limit&offset=$offset";
     return await http.get(
       Uri.parse(fullUrl),
       headers: setHeaders(),
@@ -107,9 +122,10 @@ class ApiService {
     limit = 1,
     offset = 10,
   }) async {
+    await getEndpoint();
     await getUser();
     var fullUrl =
-        "$url/order/list?nama_customer=$nameCustomer&dari_tanggal=$fromDate&sampai_tanggal=$toDate&limit=$limit&offset=$offset";
+        "$endpoint/order/list?nama_customer=$nameCustomer&dari_tanggal=$fromDate&sampai_tanggal=$toDate&limit=$limit&offset=$offset";
     return await http.get(
       Uri.parse(fullUrl),
       headers: setHeaders(),
@@ -117,8 +133,9 @@ class ApiService {
   }
 
   getReportSalesOrderDetail(number) async {
+    await getEndpoint();
     await getUser();
-    var fullUrl = "$url/order/detail/list?nomor_so=$number";
+    var fullUrl = "$endpoint/order/detail/list?nomor_so=$number";
     return await http.get(
       Uri.parse(fullUrl),
       headers: setHeaders(),
@@ -132,9 +149,10 @@ class ApiService {
     limit = 1,
     offset = 10,
   }) async {
+    await getEndpoint();
     await getUser();
     var fullUrl =
-        "$url/invoice/list?nama_customer=$nameCustomer&dari_tanggal=$fromDate&sampai_tanggal=$toDate&limit=$limit&offset=$offset";
+        "$endpoint/invoice/list?nama_customer=$nameCustomer&dari_tanggal=$fromDate&sampai_tanggal=$toDate&limit=$limit&offset=$offset";
     return await http.get(
       Uri.parse(fullUrl),
       headers: setHeaders(),
@@ -142,8 +160,9 @@ class ApiService {
   }
 
   getReportInvoiceDetail(id) async {
+    await getEndpoint();
     await getUser();
-    var fullUrl = "$url/invoice/detail/list?id_penjualan=$id";
+    var fullUrl = "$endpoint/invoice/detail/list?id_penjualan=$id";
     return await http.get(
       Uri.parse(fullUrl),
       headers: setHeaders(),

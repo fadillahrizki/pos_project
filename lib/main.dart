@@ -32,7 +32,7 @@ class CheckAuth extends StatefulWidget {
 class _CheckAuthState extends State<CheckAuth> {
   Future<int> isAuthenticated() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    if (sharedPreferences.getString("configuration") != null) {
+    if (sharedPreferences.getString("endpoint") != null) {
       if (sharedPreferences.getString("userData") != null) {
         return 2;
       }
