@@ -40,10 +40,16 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   showMsg(msg) {
-    final snackBar = SnackBar(
-      content: Text(msg),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text(
+              msg,
+              textAlign: TextAlign.center,
+            ),
+          );
+        });
   }
 
   _editProfile() async {
