@@ -149,12 +149,8 @@ class _SalesOrderState extends State<SalesOrder> {
                             context: context,
                             builder: (_) {
                               return const AlertDialog(
-                                content: Column(
-                                  children: [
-                                    Text(
-                                        "Silahkan pilih tanggal terlebih dahulu"),
-                                  ],
-                                ),
+                                content: Text(
+                                    "Silahkan pilih tanggal terlebih dahulu"),
                               );
                             });
                       } else {

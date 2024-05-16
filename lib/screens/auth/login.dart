@@ -52,11 +52,12 @@ class _LoginState extends State<Login> {
         localStorage.setString(
             'userData', jsonEncode({...body['data'], ...data}));
 
-        Navigator.push(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (context) => const Home(),
           ),
+          (route) => false,
         );
       } else {
         showMsg(body['message']);
@@ -124,11 +125,12 @@ class _LoginState extends State<Login> {
                 const SizedBox(height: 12),
                 CustomButton(
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const Configuration(),
                       ),
+                      (route) => false,
                     );
                   },
                   label: 'Configuration',

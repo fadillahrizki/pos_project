@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:pos_project/components/custom_button.dart';
+import 'package:pos_project/components/custom_drawer.dart';
 import 'package:pos_project/components/custom_text_field.dart';
 import 'package:pos_project/constants/custom_color.dart';
 import 'package:pos_project/services/api_service.dart';
@@ -86,6 +87,11 @@ class _EditProfileState extends State<EditProfile> {
           "Edit Profile",
           style: TextStyle(color: Colors.white),
         ),
+      ),
+      drawer: CustomDrawer(
+        name: user['nama_pengguna'],
+        username: user['username'],
+        active: 'Edit Profile',
       ),
       body: SingleChildScrollView(
         child: Padding(

@@ -45,18 +45,20 @@ class _ConfigurationState extends State<Configuration> {
     showMsg('Configuration saved!');
 
     if (localStorage.getString("userData") != null) {
-      Navigator.push(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (context) => const Home(),
         ),
+        (route) => false,
       );
     } else {
-      Navigator.push(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (context) => const Login(),
         ),
+        (route) => false,
       );
     }
   }
