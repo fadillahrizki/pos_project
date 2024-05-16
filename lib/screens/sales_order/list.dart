@@ -35,7 +35,7 @@ class _SalesOrderListState extends State<SalesOrderList> {
 
     if (body['status'] == 1) {
       setState(() {
-        salesOrders = body['data'];
+        salesOrders = body['data'] ?? [];
       });
     }
 
