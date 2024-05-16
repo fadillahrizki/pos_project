@@ -145,79 +145,124 @@ class _HomeState extends State<Home> {
         mainAxisSpacing: 10,
         crossAxisCount: 2,
         children: <Widget>[
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const DataItems(),
-                ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              color: Colors.teal[200],
-              child: const Text("Data Items"),
+          Card(
+            color: CustomColor().warning,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DataItems(),
+                  ),
+                );
+              },
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.dashboard_outlined,
+                    size: 50,
+                  ),
+                  SizedBox(height: 10),
+                  Text("Data Items"),
+                ],
+              ),
             ),
           ),
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ReportStockItems(),
-                ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              color: Colors.teal[200],
-              child: const Text("Report Stock Items"),
+          Card(
+            color: CustomColor().warning,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ReportStockItems(),
+                  ),
+                );
+              },
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.analytics_outlined,
+                    size: 50,
+                  ),
+                  SizedBox(height: 10),
+                  Text("Report Stock Items"),
+                ],
+              ),
             ),
           ),
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SalesOrder(),
-                ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              color: Colors.teal[200],
-              child: const Text("Sales Order"),
+          Card(
+            color: CustomColor().warning,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SalesOrder(),
+                  ),
+                );
+              },
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.payments_outlined,
+                    size: 50,
+                  ),
+                  SizedBox(height: 10),
+                  Text("Sales Order"),
+                ],
+              ),
             ),
           ),
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ReportSalesOrder(),
-                ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              color: Colors.teal[200],
-              child: const Text("Report Sales Order"),
+          Card(
+            color: CustomColor().warning,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ReportSalesOrder(),
+                  ),
+                );
+              },
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.request_quote_outlined,
+                    size: 50,
+                  ),
+                  SizedBox(height: 10),
+                  Text("Report Sales Order"),
+                ],
+              ),
             ),
           ),
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ReportInvoice(),
-                ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              color: Colors.teal[200],
-              child: const Text("Report Invoice"),
+          Card(
+            color: CustomColor().warning,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ReportInvoice(),
+                  ),
+                );
+              },
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.receipt_long,
+                    size: 50,
+                  ),
+                  SizedBox(height: 10),
+                  Text("Report Invoice"),
+                ],
+              ),
             ),
           ),
         ],
