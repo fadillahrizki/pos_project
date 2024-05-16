@@ -132,6 +132,54 @@ class ApiService {
     );
   }
 
+  postSalesOrder({data, type}) async {
+    await getEndpoint();
+    await getUser();
+    var fullUrl = '$endpoint/mobile/order/$type';
+    return await http.post(
+      Uri.parse(fullUrl),
+      body: data,
+      headers: setHeaders(),
+    );
+  }
+
+  cancelSalesOrder(data) async {
+// {
+//     "no_order": "SO-240423-142526"
+// }
+
+    await getEndpoint();
+    await getUser();
+    var fullUrl = '$endpoint/mobile/order/cancel';
+    return await http.post(
+      Uri.parse(fullUrl),
+      body: data,
+      headers: setHeaders(),
+    );
+  }
+
+  postSalesOrderItem({data, type}) async {
+    await getEndpoint();
+    await getUser();
+    var fullUrl = '$endpoint/mobile/items/$type';
+    return await http.post(
+      Uri.parse(fullUrl),
+      body: data,
+      headers: setHeaders(),
+    );
+  }
+
+  deleteSalesOrderItem(data) async {
+    await getEndpoint();
+    await getUser();
+    var fullUrl = '$endpoint/mobile/items/delete';
+    return await http.post(
+      Uri.parse(fullUrl),
+      body: data,
+      headers: setHeaders(),
+    );
+  }
+
   getReportSalesOrderDetail(number) async {
     await getEndpoint();
     await getUser();

@@ -26,6 +26,10 @@ class _SalesOrderListState extends State<SalesOrderList> {
   bool isLoading = true;
 
   loadData() async {
+    setState(() {
+      isLoading = true;
+    });
+
     var res = await ApiService().getReportSalesOrder(
       nameCustomer: widget.customer == "ALL" ? "" : widget.customer,
       fromDate: widget.fromDate,
@@ -153,12 +157,16 @@ class _SalesOrderListState extends State<SalesOrderList> {
             ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: CustomColor().primary,
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          var isSuccess = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const SalesOrderForm(),
               ));
+
+          if (isSuccess) {
+            loadData();
+          }
         },
         child: const Icon(
           Icons.add,

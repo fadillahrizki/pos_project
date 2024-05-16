@@ -11,9 +11,11 @@ class CustomTextField extends StatefulWidget {
     this.enabled = true,
     required this.label,
     this.controller,
+    this.keyboardType = TextInputType.text,
   });
 
   final String label;
+  final TextInputType keyboardType;
   final int maxLines;
   bool obsecureText;
   bool enabled;
@@ -40,6 +42,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         Text(widget.label),
         const SizedBox(height: 12),
         TextField(
+          keyboardType: widget.keyboardType,
           controller: widget.controller ?? TextEditingController(),
           maxLines: widget.maxLines,
           enabled: widget.enabled,

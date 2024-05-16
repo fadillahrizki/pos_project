@@ -37,10 +37,41 @@ class _SalesOrderItemsState extends State<SalesOrderItems> {
     });
   }
 
+  deleteItem(item) async {
+    try {
+      var res = await ApiService().deleteSalesOrderItem(
+        jsonEncode({
+          "no_order": item['no_order'],
+          "dtl_id": item['dtl_id'],
+          "id_item": item['id_item'],
+          "id_itemdetail": item['id_itemdetail'],
+          "kode_item": item['kode_item'],
+          "nama_item": item['nama_item'],
+          "qty_order": item['qty_order'],
+          "satuan": item['satuan']
+        }),
+      );
+
+      Map<String, dynamic> body = jsonDecode(res.body);
+      showMsg(body['message']);
+
+      loadData();
+    } catch (e) {
+      showMsg('Gagal delete item!');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     loadData();
+  }
+
+  showMsg(msg) {
+    final snackBar = SnackBar(
+      content: Text(msg),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override
@@ -131,7 +162,9 @@ class _SalesOrderItemsState extends State<SalesOrderItems> {
                                     ),
                                     const SizedBox(width: 6),
                                     CustomButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        deleteItem(item);
+                                      },
                                       label: 'Delete',
                                       type: 'danger',
                                       size: 'sm',
@@ -172,12 +205,16 @@ class _SalesOrderItemsState extends State<SalesOrderItems> {
         padding: const EdgeInsets.only(bottom: 40),
         child: FloatingActionButton(
           backgroundColor: CustomColor().primary,
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            var isSuccess = await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => SalesOrderItemsForm(data: widget.data),
                 ));
+
+            if (isSuccess) {
+              loadData();
+            }
           },
           child: const Icon(
             Icons.add,
