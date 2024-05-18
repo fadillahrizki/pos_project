@@ -21,10 +21,10 @@ class _DataItemsListState extends State<DataItemsList> {
   bool isLoading = true;
 
   loadData({name = ''}) async {
+    setState(() {
+      isLoading = true;
+    });
     try {
-      setState(() {
-        isLoading = true;
-      });
       var res = await ApiService().getItems(
         category: widget.category == 'ALL' ? '' : widget.category,
         name: name,
@@ -35,13 +35,21 @@ class _DataItemsListState extends State<DataItemsList> {
           items = body['data'] ?? [];
         });
       }
-
-      setState(() {
-        isLoading = false;
-      });
     } catch (e) {
-      print(e);
+      print(e.toString());
+
+      showMsg('Terjadi kesalahan pada server!');
     }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  showMsg(msg) {
+    final snackBar = SnackBar(
+      content: Text(msg),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override

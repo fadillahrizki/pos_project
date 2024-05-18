@@ -17,14 +17,26 @@ class _ReportInvoiceListState extends State<ReportInvoiceList> {
   late List invoices;
 
   loadData() async {
-    var res = await ApiService().getReportInvoice();
-    Map<String, dynamic> body = jsonDecode(res.body);
+    try {
+      var res = await ApiService().getReportInvoice();
+      Map<String, dynamic> body = jsonDecode(res.body);
 
-    if (body['status'] == 1) {
-      setState(() {
-        invoices = body['data'] ?? [];
-      });
+      if (body['status'] == 1) {
+        setState(() {
+          invoices = body['data'] ?? [];
+        });
+      }
+    } catch (e) {
+      print(e.toString());
+      showMsg('Terjadi kesalahan pada server!');
     }
+  }
+
+  showMsg(msg) {
+    final snackBar = SnackBar(
+      content: Text(msg),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override

@@ -44,23 +44,24 @@ class _ConfigurationState extends State<Configuration> {
 
     showMsg('Configuration saved!');
 
-    if (localStorage.getString("userData") != null) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const Home(),
-        ),
-        (route) => false,
-      );
-    } else {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const Login(),
-        ),
-        (route) => false,
-      );
-    }
+    // if (localStorage.getString("userData") != null) {
+    //   Navigator.pushAndRemoveUntil(
+    //     context,
+    //     MaterialPageRoute(
+    //       builder: (context) => const Home(),
+    //     ),
+    //     (route) => false,
+    //   );
+    // } else {
+    localStorage.remove("userData");
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const Login(),
+      ),
+      (route) => false,
+    );
+    // }
   }
 
   @override

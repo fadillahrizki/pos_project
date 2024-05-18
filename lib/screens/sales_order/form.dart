@@ -154,19 +154,21 @@ class _SalesOrderFormState extends State<SalesOrderForm> {
           type: widget.data != const {} ? 'update' : 'new');
 
       Map<String, dynamic> body = jsonDecode(res.body);
-      showMsg(body['message']);
 
-      print(body.toString());
-
-      Navigator.pop(context, true);
-    } catch (e) {
-      if (widget.data != const {}) {
-        showMsg('Gagal tambah order!');
+      if (body['status'] == 1) {
+        showMsg(body['message']);
+        Navigator.pop(context, true);
       } else {
-        showMsg('Gagal update order!');
+        if (widget.data != const {}) {
+          showMsg('Gagal tambah order!');
+        } else {
+          showMsg('Gagal update order!');
+        }
       }
-
+      print(body.toString());
+    } catch (e) {
       print(e.toString());
+      showMsg('Terjadi kesalahan pada server!');
     }
 
     setState(() {

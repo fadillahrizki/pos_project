@@ -54,27 +54,31 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   _editProfile() async {
-    Map<String, dynamic> data = {
-      "username": usernameController.text,
-      "nama_pengguna": nameController.text,
-      "nohp": phoneController.text
-    };
+    try {
+      Map<String, dynamic> data = {
+        "username": usernameController.text,
+        "nama_pengguna": nameController.text,
+        "nohp": phoneController.text
+      };
 
-    var res = await ApiService().editProfile(jsonEncode({
-      ...data,
-      "password_lama": user['password'],
-      "password_baru": passwordController.text,
-    }));
+      var res = await ApiService().editProfile(jsonEncode({
+        ...data,
+        "password_lama": user['password'],
+        "password_baru": passwordController.text,
+      }));
 
-    Map<String, dynamic> body = jsonDecode(res.body);
+      Map<String, dynamic> body = jsonDecode(res.body);
 
-    if (body['status'] == 1) {
-      SharedPreferences localStorage = await SharedPreferences.getInstance();
-      localStorage.setString('userData',
-          jsonEncode({...data, 'password': passwordController.text}));
+      if (body['status'] == 1) {
+        SharedPreferences localStorage = await SharedPreferences.getInstance();
+        localStorage.setString('userData',
+            jsonEncode({...data, 'password': passwordController.text}));
+      }
+      showMsg(body['message']);
+    } catch (e) {
+      print(e.toString());
+      showMsg('Terjadi kesalahan pada server!');
     }
-
-    showMsg(body['message']);
   }
 
   @override

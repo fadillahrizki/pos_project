@@ -28,19 +28,31 @@ class _ReportSalesOrderState extends State<ReportSalesOrder> {
   ];
 
   loadCustomers() async {
-    var res = await ApiService().getCustomers();
-    Map<String, dynamic> body = jsonDecode(res.body);
+    try {
+      var res = await ApiService().getCustomers();
+      Map<String, dynamic> body = jsonDecode(res.body);
 
-    if (body['status'] == 1) {
-      setState(() {
-        for (var value in body['data']) {
-          customerItems.add(DropdownMenuItem(
-              value: value['nama_customer'],
-              child: Text(value['nama_customer'],
-                  style: const TextStyle(fontSize: 14))));
-        }
-      });
+      if (body['status'] == 1) {
+        setState(() {
+          for (var value in body['data']) {
+            customerItems.add(DropdownMenuItem(
+                value: value['nama_customer'],
+                child: Text(value['nama_customer'],
+                    style: const TextStyle(fontSize: 14))));
+          }
+        });
+      }
+    } catch (e) {
+      print(e.toString());
+      showMsg('Terjadi kesalahan pada server!');
     }
+  }
+
+  showMsg(msg) {
+    final snackBar = SnackBar(
+      content: Text(msg),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override

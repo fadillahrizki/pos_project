@@ -22,14 +22,19 @@ class _SalesOrderItemsState extends State<SalesOrderItems> {
   bool isLoading = true;
 
   loadData() async {
-    var res =
-        await ApiService().getReportSalesOrderDetail(widget.data['no_order']);
-    Map<String, dynamic> body = jsonDecode(res.body);
+    try {
+      var res =
+          await ApiService().getReportSalesOrderDetail(widget.data['no_order']);
+      Map<String, dynamic> body = jsonDecode(res.body);
 
-    if (body['status'] == 1) {
-      setState(() {
-        items = body['data'] ?? [];
-      });
+      if (body['status'] == 1) {
+        setState(() {
+          items = body['data'] ?? [];
+        });
+      }
+    } catch (e) {
+      print(e.toString());
+      showMsg('Terjadi kesalahan pada server!');
     }
 
     setState(() {
@@ -53,11 +58,16 @@ class _SalesOrderItemsState extends State<SalesOrderItems> {
       );
 
       Map<String, dynamic> body = jsonDecode(res.body);
-      showMsg(body['message']);
 
-      loadData();
+      if (body['status'] == 1) {
+        showMsg(body['message']);
+        loadData();
+      } else {
+        showMsg('Gagal delete item!');
+      }
     } catch (e) {
-      showMsg('Gagal delete item!');
+      print(e.toString());
+      showMsg('Terjadi kesalahan pada server!');
     }
   }
 

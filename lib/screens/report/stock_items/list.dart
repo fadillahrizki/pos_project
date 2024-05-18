@@ -25,19 +25,33 @@ class _ReportStockItemsListState extends State<ReportStockItemsList> {
     setState(() {
       isLoading = true;
     });
-    var res = await ApiService().getItems(
-        category: widget.category == "ALL" ? "" : widget.category, name: name);
-    Map<String, dynamic> body = jsonDecode(res.body);
 
-    if (body['status'] == 1) {
-      setState(() {
-        items = body['data'] ?? [];
-      });
+    try {
+      var res = await ApiService().getItems(
+          category: widget.category == "ALL" ? "" : widget.category,
+          name: name);
+      Map<String, dynamic> body = jsonDecode(res.body);
+
+      if (body['status'] == 1) {
+        setState(() {
+          items = body['data'] ?? [];
+        });
+      }
+    } catch (e) {
+      print(e.toString());
+      showMsg('Terjadi kesalahan pada server!');
     }
 
     setState(() {
       isLoading = false;
     });
+  }
+
+  showMsg(msg) {
+    final snackBar = SnackBar(
+      content: Text(msg),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override

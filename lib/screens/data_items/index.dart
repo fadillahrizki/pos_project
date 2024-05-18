@@ -22,20 +22,32 @@ class _DataItemsState extends State<DataItems> {
   ];
 
   loadCategories() async {
-    var res = await ApiService().getCategories();
-    Map<String, dynamic> body = jsonDecode(res.body);
+    try {
+      var res = await ApiService().getCategories();
+      Map<String, dynamic> body = jsonDecode(res.body);
 
-    if (body['status'] == 1) {
-      setState(() {
-        for (var value in body['data']) {
-          categoryItems.add(DropdownMenuItem(
-              value: value['nama_kategori'],
-              child: Text(
-                  "(${value['kode_kategori']}) ${value['nama_kategori']}",
-                  style: const TextStyle(fontSize: 14))));
-        }
-      });
+      if (body['status'] == 1) {
+        setState(() {
+          for (var value in body['data']) {
+            categoryItems.add(DropdownMenuItem(
+                value: value['nama_kategori'],
+                child: Text(
+                    "(${value['kode_kategori']}) ${value['nama_kategori']}",
+                    style: const TextStyle(fontSize: 14))));
+          }
+        });
+      }
+    } catch (e) {
+      print(e.toString());
+      showMsg('Terjadi kesalahan pada server!');
     }
+  }
+
+  showMsg(msg) {
+    final snackBar = SnackBar(
+      content: Text(msg),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override

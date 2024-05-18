@@ -42,8 +42,7 @@ class _SalesOrderItemsFormState extends State<SalesOrderItemsForm> {
     setState(() {
       isLoading = true;
     });
-    var res =
-        await ApiService().getReportSalesOrderDetail(widget.data['no_order']);
+    var res = await ApiService().getItems();
     Map<String, dynamic> body = jsonDecode(res.body);
 
     if (body['status'] == 1) {
@@ -69,19 +68,25 @@ class _SalesOrderItemsFormState extends State<SalesOrderItemsForm> {
 
   changeItem(String? value) async {
     setState(() {
-      selectedItem = value!;
-
       foundItem = listItems.firstWhere(
-          (item) =>
-              "${item['kode_item']} - ${item['nama_item']}" == selectedItem,
+          (item) => "${item['kode_item']} - ${item['nama_item']}" == value!,
           orElse: () => null);
 
-      barcodeNumberController.text = foundItem['barcode_number'].toString();
-      satuanController.text = foundItem['harga_satuan'].toString();
-      qtyOrderController.text = foundItem['qty_order'].toString();
-      discountController.text = foundItem['persen_diskon'].toString();
-      discountNumController.text = foundItem['nominal_diskon'].toString();
-      jumlahOrderController.text = foundItem['jumlah'].toString();
+      selectedItem = foundItem != null ? value! : "";
+
+      barcodeNumberController.text =
+          foundItem['detail'][0]['barcode_number'].toString();
+      satuanController.text = foundItem['hargajual'].toString();
+      qtyOrderController.text =
+          (widget.item != const {} ? widget.item['qty_order'] : 0).toString();
+      discountController.text =
+          (widget.item != const {} ? widget.item['persen_diskon'] : 0)
+              .toString();
+      discountNumController.text =
+          (widget.item != const {} ? foundItem['nominal_diskon'] : 0)
+              .toString();
+      jumlahOrderController.text =
+          (widget.item != const {} ? widget.item['jumlah'] : 0).toString();
     });
   }
 
@@ -92,22 +97,22 @@ class _SalesOrderItemsFormState extends State<SalesOrderItemsForm> {
 
     try {
       var updateData =
-          widget.item != const {} ? {"dtl_id": foundItem['dtl_id']} : {};
+          widget.item != const {} ? {"dtl_id": widget.item['dtl_id']} : {};
 
       var res = await ApiService().postSalesOrderItem(
         data: jsonEncode({
           ...updateData,
           'no_order': widget.data['no_order'],
-          'barcode_number': foundItem['barcode_number'] ?? '',
+          'barcode_number': foundItem['detail'][0]['barcode_number'] ?? '',
           'id_item': foundItem['id_item'] ?? '',
-          'id_itemdetail': foundItem['id_itemdetail'] ?? '',
+          'id_itemdetail': foundItem['detail'][0]['id_itemdetail'] ?? '',
           'kode_item': foundItem['kode_item'] ?? '',
           'nama_item': foundItem['nama_item'] ?? '',
           'id_kategori': foundItem['id_kategori'] ?? '',
           'nama_kategori': foundItem['nama_kategori'] ?? '',
-          'harga_satuan': foundItem['harga_satuan'] ?? '',
+          'harga_satuan': foundItem['hargajual'] ?? '',
           'qty_order': qtyOrderController.text,
-          'satuan': foundItem['satuan'] ?? '',
+          'satuan': foundItem['detail'][0]['satuan'] ?? '',
           'disc_persen': discountController.text,
           'disc_nominal': discountNumController.text,
           'jumlah_harga': jumlahOrderController.text,
@@ -116,14 +121,22 @@ class _SalesOrderItemsFormState extends State<SalesOrderItemsForm> {
       );
 
       Map<String, dynamic> body = jsonDecode(res.body);
-      showMsg(body['message']);
-      Navigator.pop(context, true);
-    } catch (e) {
-      if (widget.item != const {}) {
-        showMsg('Gagal tambah item!');
+
+      if (body['status'] == 1) {
+        showMsg(body['message']);
+        Navigator.pop(context, true);
       } else {
-        showMsg('Gagal update item!');
+        if (widget.item != const {}) {
+          showMsg('Gagal update item!');
+        } else {
+          showMsg('Gagal tambah item!');
+        }
       }
+
+      print(body.toString());
+    } catch (e) {
+      print(e.toString());
+      showMsg('Terjadi kesalahan pada server!');
     }
 
     setState(() {
@@ -141,7 +154,7 @@ class _SalesOrderItemsFormState extends State<SalesOrderItemsForm> {
       var discount = double.tryParse(discountController.text) ?? 0;
 
       if (foundItem != {}) {
-        var price = double.tryParse(foundItem['harga_satuan'].toString()) ?? 0;
+        var price = double.tryParse(foundItem['hargajual'].toString()) ?? 0;
         discountNumController.text = (discount * price / 100).toString();
       }
     });
@@ -150,7 +163,7 @@ class _SalesOrderItemsFormState extends State<SalesOrderItemsForm> {
       var qty = double.tryParse(qtyOrderController.text) ?? 0;
 
       if (foundItem != {}) {
-        var price = double.tryParse(foundItem['harga_satuan'].toString()) ?? 0;
+        var price = double.tryParse(foundItem['hargajual'].toString()) ?? 0;
         jumlahOrderController.text = (qty * price).toString();
       }
     });
@@ -169,9 +182,9 @@ class _SalesOrderItemsFormState extends State<SalesOrderItemsForm> {
       appBar: AppBar(
         backgroundColor: CustomColor().primary,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          "Add/Edit Items Sales Order",
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          "${widget.item != const {} ? 'Edit' : 'Add'} Items Sales Order",
+          style: const TextStyle(color: Colors.white),
         ),
       ),
       body: isLoading

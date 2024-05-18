@@ -20,19 +20,35 @@ class _ReportSalesOrderDetailState extends State<ReportSalesOrderDetail> {
   bool isLoading = true;
 
   loadData() async {
-    var res =
-        await ApiService().getReportSalesOrderDetail(widget.data['no_order']);
-    Map<String, dynamic> body = jsonDecode(res.body);
+    setState(() {
+      isLoading = true;
+    });
 
-    if (body['status'] == 1) {
-      setState(() {
-        items = body['data'] ?? [];
-      });
+    try {
+      var res =
+          await ApiService().getReportSalesOrderDetail(widget.data['no_order']);
+      Map<String, dynamic> body = jsonDecode(res.body);
+
+      if (body['status'] == 1) {
+        setState(() {
+          items = body['data'] ?? [];
+        });
+      }
+    } catch (e) {
+      print(e.toString());
+      showMsg('Terjadi kesalahan pada server!');
     }
 
     setState(() {
       isLoading = false;
     });
+  }
+
+  showMsg(msg) {
+    final snackBar = SnackBar(
+      content: Text(msg),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override
