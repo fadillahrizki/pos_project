@@ -3,7 +3,6 @@ import 'package:pos_project/components/custom_button.dart';
 import 'package:pos_project/components/custom_text_field.dart';
 import 'package:pos_project/constants/custom_color.dart';
 import 'package:pos_project/screens/auth/login.dart';
-import 'package:pos_project/screens/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Configuration extends StatefulWidget {
