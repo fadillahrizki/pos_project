@@ -21,10 +21,12 @@ class _ReportStockItemsListState extends State<ReportStockItemsList> {
 
   bool isLoading = true;
 
-  loadData({name = ""}) async {
-    setState(() {
-      isLoading = true;
-    });
+  Future<void> loadData({name = "", isRefresh = false}) async {
+    if (!isRefresh) {
+      setState(() {
+        isLoading = true;
+      });
+    }
 
     try {
       var res = await ApiService().getItems(
@@ -153,54 +155,59 @@ class _ReportStockItemsListState extends State<ReportStockItemsList> {
                       color: CustomColor().primary,
                     ),
                   )
-                : ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (context, index) {
-                      var item = items[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(item['nama_item']),
-                                      Text(
-                                          "Limit Stok: ${item['limitstok']} ${item['detail'][0]['satuan']}"),
-                                      Text(
-                                        item['keterangan'] != ""
-                                            ? item['keterangan']
-                                            : "-",
-                                      )
-                                    ],
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        item['nama_kategori'],
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                          "Stok: ${item['sisa_stok']} ${item['detail'][0]['satuan']}"),
-                                    ],
-                                  )
-                                ],
+                : RefreshIndicator(
+                    onRefresh: () => loadData(isRefresh: true),
+                    child: ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        var item = items[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 6),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(item['nama_item']),
+                                        Text(
+                                            "Limit Stok: ${item['limitstok']} ${item['detail'][0]['satuan']}"),
+                                        Text(
+                                          item['keterangan'] != ""
+                                              ? item['keterangan']
+                                              : "-",
+                                        )
+                                      ],
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          item['nama_kategori'],
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                            "Stok: ${item['sisa_stok']} ${item['detail'][0]['satuan']}"),
+                                      ],
+                                    )
+                                  ],
+                                ),
                               ),
-                            ),
-                            const Divider()
-                          ],
-                        ),
-                      );
-                    },
+                              const Divider()
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
           ),
           Container(

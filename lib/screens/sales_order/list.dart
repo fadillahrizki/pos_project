@@ -27,10 +27,12 @@ class _SalesOrderListState extends State<SalesOrderList> {
   bool isLoadingAction = false;
   String actionId = "";
 
-  loadData() async {
-    setState(() {
-      isLoading = true;
-    });
+  Future<void> loadData({isRefresh = false}) async {
+    if (!isRefresh) {
+      setState(() {
+        isLoading = true;
+      });
+    }
 
     try {
       var res = await ApiService().getReportSalesOrder(
@@ -115,92 +117,95 @@ class _SalesOrderListState extends State<SalesOrderList> {
           : Column(
               children: [
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: salesOrders.length,
-                    itemBuilder: (context, index) {
-                      var item = salesOrders[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 6),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(item['no_order']),
-                                Text(
-                                  "Rp.${NumberFormat.decimalPattern().format(item['total_order'])}",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text("Total Items : ${item['total_items']}")
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  DateFormat('dd MMMM yyyy').format(
-                                      DateTime.parse(item['tgl_order'])),
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                                Text(item['nama_customer']),
-                                Row(
-                                  children: [
-                                    CustomButton(
-                                      onPressed: () async {
-                                        final value = await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  SalesOrderForm(
-                                                data: item,
-                                              ),
-                                            ));
+                  child: RefreshIndicator(
+                    onRefresh: () => loadData(isRefresh: true),
+                    child: ListView.builder(
+                      itemCount: salesOrders.length,
+                      itemBuilder: (context, index) {
+                        var item = salesOrders[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 6),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(item['no_order']),
+                                  Text(
+                                    "Rp.${NumberFormat.decimalPattern().format(item['total_order'])}",
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text("Total Items : ${item['total_items']}")
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    DateFormat('dd MMMM yyyy').format(
+                                        DateTime.parse(item['tgl_order'])),
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                  Text(item['nama_customer']),
+                                  Row(
+                                    children: [
+                                      CustomButton(
+                                        onPressed: () async {
+                                          final value = await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SalesOrderForm(
+                                                  data: item,
+                                                ),
+                                              ));
 
-                                        if (value) {
-                                          loadData();
-                                        }
-                                      },
-                                      label: 'Edit',
-                                      size: 'sm',
-                                    ),
-                                    const SizedBox(width: 6),
-                                    CustomButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  SalesOrderItems(
-                                                data: item,
-                                              ),
-                                            ));
-                                      },
-                                      label: 'Items',
-                                      size: 'sm',
-                                      type: 'info',
-                                    ),
-                                    const SizedBox(width: 6),
-                                    CustomButton(
-                                      onPressed: () {
-                                        cancel(item['no_order']);
-                                      },
-                                      label: 'Cancel',
-                                      size: 'sm',
-                                      type: 'danger',
-                                      enabled: !(isLoadingAction &&
-                                          actionId == item['no_order']),
-                                    ),
-                                  ],
-                                )
-                              ],
-                            )
-                          ],
-                        ),
-                      );
-                    },
+                                          if (value) {
+                                            loadData();
+                                          }
+                                        },
+                                        label: 'Edit',
+                                        size: 'sm',
+                                      ),
+                                      const SizedBox(width: 6),
+                                      CustomButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SalesOrderItems(
+                                                  data: item,
+                                                ),
+                                              ));
+                                        },
+                                        label: 'Items',
+                                        size: 'sm',
+                                        type: 'info',
+                                      ),
+                                      const SizedBox(width: 6),
+                                      CustomButton(
+                                        onPressed: () {
+                                          cancel(item['no_order']);
+                                        },
+                                        label: 'Cancel',
+                                        size: 'sm',
+                                        type: 'danger',
+                                        enabled: !(isLoadingAction &&
+                                            actionId == item['no_order']),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 Container(

@@ -24,10 +24,12 @@ class _ReportInvoiceListState extends State<ReportInvoiceList> {
   List invoices = [];
   bool isLoading = true;
 
-  loadData() async {
-    setState(() {
-      isLoading = true;
-    });
+  Future<void> loadData({isRefresh = false}) async {
+    if (!isRefresh) {
+      setState(() {
+        isLoading = true;
+      });
+    }
     try {
       var res = await ApiService().getReportInvoice(
         nameCustomer: widget.customer == "ALL" ? "" : widget.customer,
@@ -85,58 +87,61 @@ class _ReportInvoiceListState extends State<ReportInvoiceList> {
                       color: CustomColor().primary,
                     ),
                   )
-                : ListView.builder(
-                    itemCount: invoices.length,
-                    itemBuilder: (context, index) {
-                      var item = invoices[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 6),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(item['nomor_faktur']),
-                                Text(
-                                  "Rp.${NumberFormat.decimalPattern().format(item['total_penjualan'])}",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text("Total Items : ${item['total_items']}")
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  DateFormat('dd MMMM yyyy').format(
-                                      DateTime.parse(item['tanggal_faktur'])),
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                                Text(item['nama_customer']),
-                                CustomButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ReportInvoiceDetail(
-                                          data: item,
+                : RefreshIndicator(
+                    onRefresh: () => loadData(isRefresh: true),
+                    child: ListView.builder(
+                      itemCount: invoices.length,
+                      itemBuilder: (context, index) {
+                        var item = invoices[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 6),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(item['nomor_faktur']),
+                                  Text(
+                                    "Rp.${NumberFormat.decimalPattern().format(item['total_penjualan'])}",
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text("Total Items : ${item['total_items']}")
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    DateFormat('dd MMMM yyyy').format(
+                                        DateTime.parse(item['tanggal_faktur'])),
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                  Text(item['nama_customer']),
+                                  CustomButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ReportInvoiceDetail(
+                                            data: item,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                  label: 'Detail',
-                                  size: 'sm',
-                                )
-                              ],
-                            )
-                          ],
-                        ),
-                      );
-                    },
+                                      );
+                                    },
+                                    label: 'Detail',
+                                    size: 'sm',
+                                  )
+                                ],
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
           ),
           Container(

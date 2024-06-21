@@ -21,7 +21,7 @@ class _SalesOrderItemsState extends State<SalesOrderItems> {
 
   bool isLoading = true;
 
-  loadData() async {
+  Future<void> loadData() async {
     try {
       var res =
           await ApiService().getReportSalesOrderDetail(widget.data['no_order']);
@@ -127,68 +127,71 @@ class _SalesOrderItemsState extends State<SalesOrderItems> {
                 ? Center(
                     child:
                         CircularProgressIndicator(color: CustomColor().primary))
-                : ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (context, index) {
-                      var item = items[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 6),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(item['nama_item']),
-                                Text(
-                                  "Total Order: Rp.${NumberFormat.decimalPattern().format(item['jumlah'])}",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                    "Qty Order : ${item['qty_order']} ${item['satuan']}")
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Row(
-                                  children: [
-                                    CustomButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  SalesOrderItemsForm(
-                                                data: widget.data,
-                                                item: item,
-                                              ),
-                                            ));
-                                      },
-                                      label: 'Edit',
-                                      size: 'sm',
-                                    ),
-                                    const SizedBox(width: 6),
-                                    CustomButton(
-                                      onPressed: () {
-                                        deleteItem(item);
-                                      },
-                                      label: 'Delete',
-                                      type: 'danger',
-                                      size: 'sm',
-                                    ),
-                                  ],
-                                ),
-                                Text(
-                                    "Rp.${NumberFormat.decimalPattern().format(item['nominal_diskon'])}"),
-                              ],
-                            )
-                          ],
-                        ),
-                      );
-                    },
+                : RefreshIndicator(
+                    onRefresh: loadData,
+                    child: ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        var item = items[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 6),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(item['nama_item']),
+                                  Text(
+                                    "Total Order: Rp.${NumberFormat.decimalPattern().format(item['jumlah'])}",
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                      "Qty Order : ${item['qty_order']} ${item['satuan']}")
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Row(
+                                    children: [
+                                      CustomButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SalesOrderItemsForm(
+                                                  data: widget.data,
+                                                  item: item,
+                                                ),
+                                              ));
+                                        },
+                                        label: 'Edit',
+                                        size: 'sm',
+                                      ),
+                                      const SizedBox(width: 6),
+                                      CustomButton(
+                                        onPressed: () {
+                                          deleteItem(item);
+                                        },
+                                        label: 'Delete',
+                                        type: 'danger',
+                                        size: 'sm',
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                      "Rp.${NumberFormat.decimalPattern().format(item['nominal_diskon'])}"),
+                                ],
+                              )
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
           ),
           Container(

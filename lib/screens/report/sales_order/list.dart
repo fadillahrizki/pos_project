@@ -25,10 +25,12 @@ class _ReportSalesOrderListState extends State<ReportSalesOrderList> {
 
   bool isLoading = true;
 
-  loadData() async {
-    setState(() {
-      isLoading = true;
-    });
+  Future<void> loadData({isRefresh = false}) async {
+    if (!isRefresh) {
+      setState(() {
+        isLoading = true;
+      });
+    }
 
     try {
       var res = await ApiService().getReportSalesOrder(
@@ -87,67 +89,73 @@ class _ReportSalesOrderListState extends State<ReportSalesOrderList> {
                       color: CustomColor().primary,
                     ),
                   )
-                : ListView.builder(
-                    itemCount: salesOrders.length,
-                    itemBuilder: (context, index) {
-                      var item = salesOrders[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(item['no_order']),
-                                      Text(
-                                        "Rp.${NumberFormat.decimalPattern().format(item['total_order'])}",
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                          "Total Items : ${item['total_items']}")
-                                    ],
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        DateFormat('dd MMMM yyyy').format(
-                                            DateTime.parse(item['tgl_order'])),
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                      Text(item['nama_customer']),
-                                      CustomButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ReportSalesOrderDetail(
-                                                      data: item),
-                                            ),
-                                          );
-                                        },
-                                        label: 'Detail',
-                                        size: 'sm',
-                                      )
-                                    ],
-                                  )
-                                ],
+                : RefreshIndicator(
+                    onRefresh: () => loadData(isRefresh: true),
+                    child: ListView.builder(
+                      itemCount: salesOrders.length,
+                      itemBuilder: (context, index) {
+                        var item = salesOrders[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 6),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(item['no_order']),
+                                        Text(
+                                          "Rp.${NumberFormat.decimalPattern().format(item['total_order'])}",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                            "Total Items : ${item['total_items']}")
+                                      ],
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          DateFormat('dd MMMM yyyy').format(
+                                              DateTime.parse(
+                                                  item['tgl_order'])),
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                        Text(item['nama_customer']),
+                                        CustomButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ReportSalesOrderDetail(
+                                                        data: item),
+                                              ),
+                                            );
+                                          },
+                                          label: 'Detail',
+                                          size: 'sm',
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                ),
                               ),
-                            ),
-                            const Divider()
-                          ],
-                        ),
-                      );
-                    },
+                              const Divider()
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
           ),
           Container(

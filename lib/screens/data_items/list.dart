@@ -20,10 +20,12 @@ class _DataItemsListState extends State<DataItemsList> {
   List items = [];
   bool isLoading = true;
 
-  loadData({name = ''}) async {
-    setState(() {
-      isLoading = true;
-    });
+  Future<void> loadData({name = '', isRefresh = false}) async {
+    if (!isRefresh) {
+      setState(() {
+        isLoading = true;
+      });
+    }
     try {
       var res = await ApiService().getItems(
         category: widget.category == 'ALL' ? '' : widget.category,
@@ -150,63 +152,68 @@ class _DataItemsListState extends State<DataItemsList> {
                       color: CustomColor().primary,
                     ),
                   )
-                : ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (context, index) {
-                      var item = items[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(item['nama_item']),
-                                      Text(
-                                        "Rp.${NumberFormat.decimalPattern().format(item['hargajual'])}",
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(item['nama_kategori'])
-                                    ],
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        "Stok: ${item['sisa_stok']} ${item['detail'][0]['satuan']}",
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                      CustomButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  DataItemsDetail(data: item),
-                                            ),
-                                          );
-                                        },
-                                        label: 'Detail',
-                                        size: 'sm',
-                                      )
-                                    ],
-                                  )
-                                ],
+                : RefreshIndicator(
+                    onRefresh: () => loadData(isRefresh: true),
+                    child: ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        var item = items[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 6),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(item['nama_item']),
+                                        Text(
+                                          "Rp.${NumberFormat.decimalPattern().format(item['hargajual'])}",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(item['nama_kategori'])
+                                      ],
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          "Stok: ${item['sisa_stok']} ${item['detail'][0]['satuan']}",
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                        CustomButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    DataItemsDetail(data: item),
+                                              ),
+                                            );
+                                          },
+                                          label: 'Detail',
+                                          size: 'sm',
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                ),
                               ),
-                            ),
-                            const Divider()
-                          ],
-                        ),
-                      );
-                    },
+                              const Divider()
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
           ),
           Container(
