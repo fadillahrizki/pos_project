@@ -24,6 +24,8 @@ class SalesOrderList extends StatefulWidget {
 class _SalesOrderListState extends State<SalesOrderList> {
   List salesOrders = [];
   bool isLoading = true;
+  bool isLoadingAction = false;
+  String actionId = "";
 
   loadData() async {
     setState(() {
@@ -50,6 +52,36 @@ class _SalesOrderListState extends State<SalesOrderList> {
 
     setState(() {
       isLoading = false;
+    });
+  }
+
+  cancel(noOrder) async {
+    setState(() {
+      isLoadingAction = true;
+      actionId = noOrder;
+    });
+    try {
+      var res = await ApiService().cancelSalesOrder(
+        jsonEncode({
+          'no_order': noOrder,
+        }),
+      );
+      Map<String, dynamic> body = jsonDecode(res.body);
+
+      if (body['status'] == 1) {
+        showMsg('Sukses cancel sales order!');
+        loadData();
+      } else {
+        showMsg('Gagal cancel sales order!');
+      }
+      print(body.toString());
+    } catch (e) {
+      print(e.toString());
+      showMsg('Terjadi kesalahan pada server!');
+    }
+    setState(() {
+      isLoadingAction = false;
+      actionId = "";
     });
   }
 
@@ -117,8 +149,8 @@ class _SalesOrderListState extends State<SalesOrderList> {
                                 Row(
                                   children: [
                                     CustomButton(
-                                      onPressed: () {
-                                        Navigator.push(
+                                      onPressed: () async {
+                                        final value = await Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) =>
@@ -126,6 +158,10 @@ class _SalesOrderListState extends State<SalesOrderList> {
                                                 data: item,
                                               ),
                                             ));
+
+                                        if (value) {
+                                          loadData();
+                                        }
                                       },
                                       label: 'Edit',
                                       size: 'sm',
@@ -145,6 +181,17 @@ class _SalesOrderListState extends State<SalesOrderList> {
                                       label: 'Items',
                                       size: 'sm',
                                       type: 'info',
+                                    ),
+                                    const SizedBox(width: 6),
+                                    CustomButton(
+                                      onPressed: () {
+                                        cancel(item['no_order']);
+                                      },
+                                      label: 'Cancel',
+                                      size: 'sm',
+                                      type: 'danger',
+                                      enabled: !(isLoadingAction &&
+                                          actionId == item['no_order']),
                                     ),
                                   ],
                                 )

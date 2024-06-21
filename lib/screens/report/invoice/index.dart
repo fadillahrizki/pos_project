@@ -169,7 +169,11 @@ class _ReportInvoiceState extends State<ReportInvoice> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const ReportInvoiceList(),
+                            builder: (context) => ReportInvoiceList(
+                              customer: selectedCustomer,
+                              fromDate: _selectedFromDate!,
+                              toDate: _selectedToDate!,
+                            ),
                           ),
                         );
                       }

@@ -1,8 +1,60 @@
-import 'package:flutter/material.dart';
-import 'package:pos_project/constants/custom_color.dart';
+import 'dart:convert';
 
-class ReportInvoiceDetail extends StatelessWidget {
-  const ReportInvoiceDetail({super.key});
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:pos_project/constants/custom_color.dart';
+import 'package:pos_project/services/api_service.dart';
+
+class ReportInvoiceDetail extends StatefulWidget {
+  const ReportInvoiceDetail({super.key, required this.data});
+
+  final Map data;
+
+  @override
+  State<ReportInvoiceDetail> createState() => _ReportInvoiceDetailState();
+}
+
+class _ReportInvoiceDetailState extends State<ReportInvoiceDetail> {
+  List items = [];
+  bool isLoading = true;
+
+  loadData() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      var res = await ApiService()
+          .getReportInvoiceDetail(widget.data['id_penjualan']);
+      Map<String, dynamic> body = jsonDecode(res.body);
+
+      if (body['status'] == 1) {
+        setState(() {
+          items = body['data'] ?? [];
+        });
+      }
+    } catch (e) {
+      print(e.toString());
+      showMsg('Terjadi kesalahan pada server!');
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  showMsg(msg) {
+    final snackBar = SnackBar(
+      content: Text(msg),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,9 +67,9 @@ class ReportInvoiceDetail extends StatelessWidget {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: const SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -27,51 +79,70 @@ class ReportInvoiceDetail extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("INV-123456"),
-                      Text("EDY GUNAWAN"),
-                      Text("No Telepon Customer"),
+                      Text(widget.data['nomor_faktur']),
+                      Text(widget.data['nama_customer']),
+                      Text(widget.data['telepon']),
                     ],
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text("01 Apr 2024"),
-                      Text("Tgl Jatuh Tempo"),
-                      Text("ID Gudang"),
+                      Text(
+                        DateFormat('dd MMMM yyyy').format(
+                            DateTime.parse(widget.data['tanggal_faktur'])),
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      Text(
+                        DateFormat('dd MMMM yyyy').format(
+                            DateTime.parse(widget.data['tanggal_jtempo'])),
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      Text(widget.data['id_gudang']),
                     ],
                   )
                 ],
               ),
-              Divider(),
-              Text("INDOMIE KALDU @2.500"),
-              Text("Barcode + Kode Items"),
+              const Divider(),
+              isLoading
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        color: CustomColor().primary,
+                      ),
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        var item = items[index];
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                "${item['nama_item']} @${NumberFormat.decimalPattern().format(item['harga_jual_satuan'])}"),
+                            Text("${item['kode_item']}"),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                    "${NumberFormat.decimalPattern().format(item['qty_jual'])} ${item['satuan']}"),
+                                Text(
+                                    "${NumberFormat.decimalPattern().format(item['nominal_diskon'])},-"),
+                                Text(
+                                    "${NumberFormat.decimalPattern().format(item['total_harga_jual'])},-"),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                        );
+                      }),
+              const Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("50 pcs"),
-                  Text("Nominal Diskon?"),
-                  Text("125.000,-"),
-                ],
-              ),
-              SizedBox(height: 12),
-              Text("AQUA BOTOL @2.000"),
-              Text("Barcode + Kode Items"),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("100 pcs"),
-                  Text("Nominal Diskon?"),
-                  Text("200.000,-"),
-                ],
-              ),
-              Divider(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Total Items: 2"),
+                  Text("Total Items: ${widget.data['total_items']}"),
                   Text(
-                    "Jumlah: 325.000",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    "Jumlah: ${NumberFormat.decimalPattern().format(widget.data['total_penjualan'])}",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   )
                 ],
               ),
@@ -80,26 +151,29 @@ class ReportInvoiceDetail extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text("Potongan (0%): 0,-"),
-                    SizedBox(
-                      width: 200,
-                      child: Divider(),
-                    ),
-                    Text("DPP: 325.000"),
-                    Text("PPN (0%): 0"),
-                    SizedBox(
+                    Text(
+                        "Potongan (${widget.data['persen_potongan']}%): ${NumberFormat.decimalPattern().format(widget.data['potongan'])},-"),
+                    const SizedBox(
                       width: 200,
                       child: Divider(),
                     ),
                     Text(
-                      "Total Transaksi: 325.000",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                        "DPP: ${NumberFormat.decimalPattern().format(widget.data['dpp'])}"),
+                    Text(
+                        "PPN: ${NumberFormat.decimalPattern().format(widget.data['ppn'])}"),
+                    const SizedBox(
+                      width: 200,
+                      child: Divider(),
+                    ),
+                    Text(
+                      "Total Transaksi: ${NumberFormat.decimalPattern().format(widget.data['total_transaksi'])}",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     )
                   ],
                 ),
               ),
-              Text("Nama Supir"),
-              Text("Nama Sales"),
+              Text(widget.data['nama_supir']),
+              Text(widget.data['nama_gudang']),
             ],
           ),
         ),
