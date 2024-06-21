@@ -126,7 +126,9 @@ class _SalesOrderItemsFormState extends State<SalesOrderItemsForm> {
         showMsg(body['message']);
         Navigator.pop(context, true);
       } else {
-        if (widget.item != const {}) {
+        if (body['message'] != null) {
+          showMsg(body['message']);
+        } else if (widget.item != const {}) {
           showMsg('Gagal update item!');
         } else {
           showMsg('Gagal tambah item!');
