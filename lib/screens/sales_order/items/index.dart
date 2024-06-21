@@ -155,34 +155,36 @@ class _SalesOrderItemsState extends State<SalesOrderItems> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  Row(
-                                    children: [
-                                      CustomButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    SalesOrderItemsForm(
-                                                  data: widget.data,
-                                                  item: item,
-                                                ),
-                                              ));
-                                        },
-                                        label: 'Edit',
-                                        size: 'sm',
-                                      ),
-                                      const SizedBox(width: 6),
-                                      CustomButton(
-                                        onPressed: () {
-                                          deleteItem(item);
-                                        },
-                                        label: 'Delete',
-                                        type: 'danger',
-                                        size: 'sm',
-                                      ),
-                                    ],
-                                  ),
+                                  widget.data['status_order'] != 2
+                                      ? Row(
+                                          children: [
+                                            CustomButton(
+                                              onPressed: () {
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          SalesOrderItemsForm(
+                                                        data: widget.data,
+                                                        item: item,
+                                                      ),
+                                                    ));
+                                              },
+                                              label: 'Edit',
+                                              size: 'sm',
+                                            ),
+                                            const SizedBox(width: 6),
+                                            CustomButton(
+                                              onPressed: () {
+                                                deleteItem(item);
+                                              },
+                                              label: 'Delete',
+                                              type: 'danger',
+                                              size: 'sm',
+                                            ),
+                                          ],
+                                        )
+                                      : Container(),
                                   Text(
                                       "Rp.${NumberFormat.decimalPattern().format(item['nominal_diskon'])}"),
                                 ],
@@ -214,27 +216,30 @@ class _SalesOrderItemsState extends State<SalesOrderItems> {
           ),
         ],
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 40),
-        child: FloatingActionButton(
-          backgroundColor: CustomColor().primary,
-          onPressed: () async {
-            var isSuccess = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SalesOrderItemsForm(data: widget.data),
-                ));
+      floatingActionButton: widget.data['status_order'] != 2
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 40),
+              child: FloatingActionButton(
+                backgroundColor: CustomColor().primary,
+                onPressed: () async {
+                  var isSuccess = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            SalesOrderItemsForm(data: widget.data),
+                      ));
 
-            if (isSuccess) {
-              loadData();
-            }
-          },
-          child: const Icon(
-            Icons.add,
-            color: Colors.white,
-          ),
-        ),
-      ),
+                  if (isSuccess) {
+                    loadData();
+                  }
+                },
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.white,
+                ),
+              ),
+            )
+          : Container(),
     );
   }
 }

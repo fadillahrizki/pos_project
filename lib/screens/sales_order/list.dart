@@ -152,24 +152,27 @@ class _SalesOrderListState extends State<SalesOrderList> {
                                   Text(item['nama_customer']),
                                   Row(
                                     children: [
-                                      CustomButton(
-                                        onPressed: () async {
-                                          final value = await Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    SalesOrderForm(
-                                                  data: item,
-                                                ),
-                                              ));
+                                      item['status_order'] != 2
+                                          ? CustomButton(
+                                              onPressed: () async {
+                                                final value =
+                                                    await Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              SalesOrderForm(
+                                                            data: item,
+                                                          ),
+                                                        ));
 
-                                          if (value) {
-                                            loadData();
-                                          }
-                                        },
-                                        label: 'Edit',
-                                        size: 'sm',
-                                      ),
+                                                if (value) {
+                                                  loadData();
+                                                }
+                                              },
+                                              label: 'Edit',
+                                              size: 'sm',
+                                            )
+                                          : Container(),
                                       const SizedBox(width: 6),
                                       CustomButton(
                                         onPressed: () {
@@ -187,16 +190,18 @@ class _SalesOrderListState extends State<SalesOrderList> {
                                         type: 'info',
                                       ),
                                       const SizedBox(width: 6),
-                                      CustomButton(
-                                        onPressed: () {
-                                          cancel(item['no_order']);
-                                        },
-                                        label: 'Cancel',
-                                        size: 'sm',
-                                        type: 'danger',
-                                        enabled: !(isLoadingAction &&
-                                            actionId == item['no_order']),
-                                      ),
+                                      item['status_order'] != 2
+                                          ? CustomButton(
+                                              onPressed: () {
+                                                cancel(item['no_order']);
+                                              },
+                                              label: 'Cancel',
+                                              size: 'sm',
+                                              type: 'danger',
+                                              enabled: !(isLoadingAction &&
+                                                  actionId == item['no_order']),
+                                            )
+                                          : Container(),
                                     ],
                                   )
                                 ],
