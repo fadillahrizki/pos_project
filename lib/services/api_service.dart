@@ -80,7 +80,7 @@ class ApiService {
     name = '',
     category = '',
     limit = 1,
-    offset = 10,
+    offset = 50,
     idCustomer = 1,
   }) async {
     await getEndpoint();
@@ -120,7 +120,7 @@ class ApiService {
     fromDate = '',
     toDate = '',
     limit = 1,
-    offset = 10,
+    offset = 50,
   }) async {
     await getEndpoint();
     await getUser();
@@ -195,7 +195,7 @@ class ApiService {
     fromDate = '',
     toDate = '',
     limit = 1,
-    offset = 10,
+    offset = 50,
   }) async {
     await getEndpoint();
     await getUser();
