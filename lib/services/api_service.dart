@@ -65,7 +65,7 @@ class ApiService {
     );
   }
 
-  getCategories({name = '', limit = 1, offset = 10}) async {
+  getCategories({name = '', limit = 1, offset = 50}) async {
     await getEndpoint();
     await getUser();
     var fullUrl =
@@ -93,7 +93,7 @@ class ApiService {
     );
   }
 
-  getCustomers({name = '', limit = 1, offset = 10}) async {
+  getCustomers({name = '', limit = 1, offset = 50}) async {
     await getEndpoint();
     await getUser();
     var fullUrl =
@@ -104,7 +104,7 @@ class ApiService {
     );
   }
 
-  getKaryawan({name = '', limit = 1, offset = 10}) async {
+  getKaryawan({name = '', limit = 1, offset = 50}) async {
     await getEndpoint();
     await getUser();
     var fullUrl =
