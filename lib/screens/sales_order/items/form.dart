@@ -83,7 +83,7 @@ class _SalesOrderItemsFormState extends State<SalesOrderItemsForm> {
           (widget.item != const {} ? widget.item['persen_diskon'] : 0)
               .toString();
       discountNumController.text =
-          (widget.item != const {} ? foundItem['nominal_diskon'] : 0)
+          (widget.item != const {} ? widget.item['nominal_diskon'] : 0)
               .toString();
       jumlahOrderController.text =
           (widget.item != const {} ? widget.item['jumlah'] : 0).toString();
